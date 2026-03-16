@@ -1,9 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from flask_session import Session
+from werkzeug.middleware.proxy_fix import ProxyFix
 import json
 import os
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = 'your_secret_key_here'
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = './flask_sessions'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+Session(app)
 
 # Файл для хранения пользователей
 USERS_FILE = 'users.json'
@@ -105,6 +115,7 @@ def login():
         user = find_user(username, password)
         if user:
             session['username'] = username
+            session.modified = True
             return redirect(url_for('index'))
         else:
             return render_template('login.html', error="Неверное имя пользователя или пароль")
@@ -148,4 +159,4 @@ def buy_drink(drink_id):
 
 if __name__ == '__main__':
     init_users_file()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
