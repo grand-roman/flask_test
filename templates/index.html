@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кофейня</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #6f4e37;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .user-info {
+            background-color: #8b7355;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .drinks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .drink-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .drink-card:hover {
+            transform: translateY(-5px);
+        }
+        .drink-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #6f4e37;
+            margin-bottom: 10px;
+        }
+        .drink-price {
+            color: #8b7355;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .buy-btn {
+            background-color: #6f4e37;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .buy-btn:hover {
+            background-color: #8b7355;
+        }
+        .auth-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .auth-btn {
+            display: inline-block;
+            background-color: #6f4e37;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+        .auth-btn:hover {
+            background-color: #8b7355;
+        }
+        .error {
+            color: red;
+            background-color: #ffe6e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>☕ Кофейня "Уютный уголок"</h1>
+        {% if user %}
+            <div class="user-info">
+                Привет, {{ user.username }}! 
+                <br>Баллов: {{ user.points }}
+                <br><a href="{{ url_for('logout') }}" style="color: white; font-size: 0.8em;">Выйти</a>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if not user %}
+        <div class="auth-buttons">
+            <a href="{{ url_for('login') }}" class="auth-btn">Войти</a>
+            <a href="{{ url_for('register') }}" class="auth-btn">Зарегистрироваться</a>
+        </div>
+    {% endif %}
+
+    <h2>Наши напитки</h2>
+    <div class="drinks-grid">
+        {% for drink in drinks %}
+            <div class="drink-card">
+                <div class="drink-name">{{ drink.name }}</div>
+                <div class="drink-description">{{ drink.description }}</div>
+                <div class="drink-price">Цена: {{ drink.price }} баллов</div>
+                {% if user %}
+                    {% if user.points >= drink.price %}
+                        <a href="{{ url_for('buy_drink', drink_id=drink.id) }}">
+                            <button class="buy-btn">Купить за баллы</button>
+                        </a>
+                    {% else %}
+                        <button class="buy-btn" disabled style="background-color: #ccc;">
+                            Недостаточно баллов
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <button class="buy-btn" disabled style="background-color: #ccc;">
+                        Войдите для покупки
+                    </button>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
